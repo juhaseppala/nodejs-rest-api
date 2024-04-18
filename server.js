@@ -37,6 +37,8 @@ router.delete("/user/:id", (req, res)=>{
 
 app.use('/api/v1', router)
 
+app.use(express.static('public'))
+
 app.listen(3000, ()=>{
     console.log("http-palvelin käynnistetty osoitteeseen http://localhost:3000")
 })
