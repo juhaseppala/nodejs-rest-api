@@ -1,4 +1,5 @@
 import express, { Router } from 'express'
+import { db } from './database/sqlite'
 
 const app = express()
 const router = Router()
@@ -7,6 +8,23 @@ app.use(express.static("public"))
 app.use(express.json())
 
 router.get("/user", (req, res)=>{
+
+    db.all('SELECT * FROM user', [], (err, rows)=>{
+
+        if(err){
+            return res.status(404).send('User not found')
+        }
+
+        console.log(rows)
+
+        rows.forEach((row)=>{
+
+            console.log(row)
+        })
+
+        res.send("dataa myöhemmin tästä.")
+
+    })
 
     res.send("Tässä palautetaan kaikki käyttäjät")
 

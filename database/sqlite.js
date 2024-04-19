@@ -1,6 +1,6 @@
 import sqlite3 from 'sqlite3';
 
-const db = new sqlite3.Database('db.sqlite')
+export const db = new sqlite3.Database('database/db.sqlite')
 
 db.exec("CREATE TABLE IF NOT EXISTS user (username TEXT, age INT)")
 
@@ -8,7 +8,7 @@ db.serialize(()=>{
 
     const stmt = db.prepare("INSERT INTO user VALUES (?, ?)")
 
-    stmt.run("Pasi", 50)
+    stmt.run("Juha", 21)
 
     stmt.finalize()
 
