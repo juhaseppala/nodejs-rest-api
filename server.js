@@ -1,5 +1,5 @@
 import express, { Router } from 'express'
-import { db } from './database/sqlite'
+import { db } from './database/sqlite.js'
 
 const app = express()
 const router = Router()
@@ -15,23 +15,33 @@ router.get("/user", (req, res)=>{
             return res.status(404).send('User not found')
         }
 
+        res.send(JSON.stringify(rows))
+
         console.log(rows)
-
         rows.forEach((row)=>{
-
             console.log(row)
         })
 
-        res.send("dataa myöhemmin tästä.")
+        // res.send("dataa myöhemmin tästä.")
 
     })
-
-    res.send("Tässä palautetaan kaikki käyttäjät")
 
 })
 
 router.get("/user/:id", (req, res)=>{
-    res.send("Tässä palautetaan käyttäjä id:n perusteella" + req.params.id)
+    const id = req.params.id
+    //res.send("Tässä palautetaan käyttäjä id:n perusteella" + req.params.id)
+
+    db.get('SELECT * FROM user WHERE id = ?', [id], (err, row)=>{
+        
+        if (err){
+            return res.status(404).send("User not found")
+        }
+
+        res.send(JSON.stringify(row))
+
+    })
+
 
 })
 
@@ -55,7 +65,6 @@ router.delete("/user/:id", (req, res)=>{
 
 app.use('/api/v1', router)
 
-// lisäys
 app.use(express.static('public'))
 
 app.listen(3000, ()=>{
