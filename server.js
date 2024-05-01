@@ -88,7 +88,7 @@ router.post("/user", async (req, res)=>{
 
 router.put("/user", (req, res)=>{
 
-    const {username, age, id} =req.body
+    const {username, age, id} = req.body
 
     if(!username || !age || !id) {
         return res.status(400).send("Tarkista tiedot")
@@ -143,9 +143,7 @@ router.post('/user/login', (req, res)=>{
 
         if(isAuthenticated){
 
-            const jti = crypto.randomUUID()
-
-            
+            const jti = crypto.randomUUID() 
           
             const token = jwt.sign({
                 role: row.role
@@ -168,8 +166,6 @@ router.post('/user/login', (req, res)=>{
                     secure: true
                 })
 
-               // res.setHeader('Set-Cookie','accessToken=Bearer ' + token + "; HttpOnly;")
-
                 return res.send("Kirjautuminen onnistui")
         
             })
@@ -183,6 +179,107 @@ router.post('/user/login', (req, res)=>{
         }
 
     )
+
+// tapahtuman lisääminen
+router.post("/event", async(req, res) => {
+        const {event, location, event_date} = req.body
+
+    if(!event || !location || !event_date){
+        return res.status(400).send("Tarkista tiedot")
+    }
+
+    db.run("INSERT INTO events (event, location, event_date) VALUES (?, ?, ?)", [event, location, event_date], function(err) {
+        if (err) {
+            return res.status(400).send("Tapahtuman lisääminen epäonnistui");
+        }
+        res.status(201).send("Tapahtuma lisätty onnistuneesti");
+    });
+    
+});
+
+// tapahtumien hakeminen
+router.get("/event", (req, res) => {
+    db.all('SELECT id, event, location, event_date FROM events', [], (err, rows) => {
+        if (err) {
+            return res.status(404).send('Tapahtumia ei löydetty');
+        }
+        res.send(JSON.stringify(rows))
+
+        console.log(rows)
+        rows.forEach((row)=>{
+            console.log(row)
+        })
+    })
+})
+
+// yksittäisen tapahtuman hakeminen id:llä
+router.get("/event/:id", (req, res)=>{
+    const eventId = req.params.id
+
+    db.get('SELECT * FROM events WHERE id = ?', [eventId], (err, row)=>{
+        
+        if (err){
+            return res.status(404).send("Tapahtumaa ei löytynyt")
+        }
+
+        res.send(JSON.stringify(row))
+
+    })
+
+})
+
+// tapahtuman sijainnin päivitys
+router.patch("/event/:id", async(req, res)=> {
+    const eventId = req.params.id
+    const {location} = req.body
+    if(!location){
+        return res.status(400).send("Tarkista tapahtuman sijaintitiedot")
+    }
+
+    db.run("UPDATE events SET location = ? WHERE id = ?", [location, eventId], function(err){
+        if (err) {
+            return res.status(400).send("Tapahtuman sijainnin päivitys epäonnistui")
+        }
+        res.status(201).send("Tapahtuman sijainti päivitetty")
+    })
+})
+
+// koko tapahtuman päivitys
+router.put("/event", (req, res)=>{
+
+    const {event, location, event_date, id} = req.body
+
+    if(!event || !location || !event_date || !id) {
+        return res.status(400).send("Tarkista tiedot")
+    }
+
+    db.serialize(()=>{
+
+        const eventStmt = db.prepare("UPDATE events SET event = ?, location = ?, event_date = ? WHERE id = ?")
+
+        eventStmt.run(event, location, event_date, id)
+
+        eventStmt.finalize()
+
+        res.send("Tapahtuma päivitetty onnistuneesti")
+
+    })
+})
+
+// tapahtuman poistaminen
+router.delete("/event/:id", (req, res)=>{
+    const eventId = req.params.id
+    db.run("DELETE FROM events WHERE id = ?", [eventId], (err)=>{
+    
+            if(err){
+                return res.status(404).send("Poistaminen epäonnistui, tarkista tapahtuman tiedot")
+            }
+    
+            res.send("Tapahtuma poistettu onnistuneesti")
+    
+        })
+    
+    })
 
 app.use('/api/v1', router)
 
