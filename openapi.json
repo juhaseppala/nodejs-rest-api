@@ -1,0 +1,437 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Nodejs REST API laajennos",
+    "description": "Tässä tehtynä laajennos kurssilla aloitettua Nodejs REST API-projektia varten. Laajennoksen tarkoituksena lisätä rajapintaan mahdollisuus tapahtumien lisäämiseen ja ylläpitämiseen. Ajatuksena laajennoksessa on, että se mahdollistaa myöhemmin käyttäjien lisäämisen tapahtumaan. Tapahtumalistat voi kattaa tapahtumat esim. eri vuodenaikoina tai sesonkeina.",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "email": "juhasepp@edu.lapinamk.fi"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "0.2.20"
+  },
+  "externalDocs": {
+    "description": "Find out more about Swagger",
+    "url": "http://http://swagger.io"
+  },
+  "servers": [
+    {
+      "url": "https://localhost:3000"
+    }
+  ],
+  "tags": [
+    {
+      "name": "tapahtuma",
+      "description": "Tapahtuma-API:n polut",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "http://swagger.io"
+      }
+    },
+    {
+      "name": "user",
+      "description": "Käyttäjähallintaan liittyvät polut"
+    }
+  ],
+  "paths": {
+    "/tapahtuma": {
+      "get": {
+        "tags": [
+          "tapahtuma"
+        ],
+        "summary": "Hae tapahtumat",
+        "description": "Tämän voi tehdä kirjautunut käyttäjä"
+      },
+      "post": {
+        "tags": [
+          "tapahtuma"
+        ],
+        "summary": "Tee uusi tapahtuma",
+        "description": "Tämän voi tehdä kirjautunut käyttäjä"
+      },
+      "put": {
+        "tags": [
+          "tapahtuma"
+        ],
+        "summary": "Päivitä koko tapahtuma",
+        "description": "Tämän voi tehdä tapahtuman admin"
+      },
+      "delete": {
+        "tags": [
+          "tapahtuma"
+        ],
+        "summary": "Poista tapahtuma",
+        "description": "Tämän voi tehdä tapahtuman admin"
+      }
+    },
+    "/tapahtuma/{id}": {
+      "get": {
+        "tags": [
+          "tapahtuma"
+        ],
+        "summary": "Hae yksittäisen tapahtuman tiedot",
+        "description": "Tämän voi tehdä kirjautunut käyttäjä"
+      },
+      "patch": {
+        "tags": [
+          "tapahtuma"
+        ],
+        "summary": "Päivitä yksittäisen tapahtuman yksittäinen tieto",
+        "description": "Tämän voi tehdä tapahtuman admin"
+      }
+    },
+    "/user": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Luo Käyttäjä",
+        "description": "Tämä tehdään ensimmäisen kerran kirjautuessa",
+        "operationId": "createUser",
+        "requestBody": {
+          "description": "Käyttäjä luotu",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "Käyttäjä luotu onnistuneesti",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/login": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Kirjaa käyttäjä sisään",
+        "description": "Käyttäjän sisäänkirjautuminen",
+        "operationId": "authenticateUser",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "query",
+            "description": "The user name for login",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "password",
+            "in": "query",
+            "description": "The password for login in clear text",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Onnistunut sisäänkirjautuminen",
+            "headers": {
+              "X-Rate-Limit": {
+                "description": "käyttäjän sallittu pyyntömäärä tuntia kohti",
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "X-Expires-After": {
+                "description": "UTC päivämäärä kun token umpeutuu",
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            },
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Väärä käyttäjätunnus / salasana"
+          }
+        }
+      }
+    },
+    "/user/{id}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Löydä käyttäjän käyttäjätunnus id:n perusteella",
+        "description": "",
+        "operationId": "getUserById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The name that needs to be fetched. Use user1 for testing. ",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Käyttäjä löytyi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Id syötetty väärässä muodossa"
+          },
+          "404": {
+            "description": "Ei käyttäjää tällä id:llä"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Päivitä Käyttäjä",
+        "description": "Tämän voi tehdä vain kirjautunut käyttäjä",
+        "operationId": "updateUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "name that need to be deleted",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Päivitä olemassa oleva käyttäjä käyttäjänhallintajärjestelmästä",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "description": "Päivitys onnistui"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Poista käyttäjä",
+        "description": "Tämän voi tehdä vain kirjautunut käyttäjä",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The name that needs to be deleted",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Id syötetty väärässä muodossa"
+          },
+          "404": {
+            "description": "Ei käyttäjää tällä id:llä"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Tapahtuma": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "examples": [
+              21
+            ]
+          },
+          "event": {
+            "type": "string",
+            "description": "Tapahtuman nimi",
+            "examples": [
+              "Ostarifestari"
+            ]
+          },
+          "location": {
+            "type": "string",
+            "description": "Tapahtuman sijainti",
+            "examples": [
+              "Kempele"
+            ]
+          },
+          "event_date": {
+            "type": "integer",
+            "format": "date-time"
+          }
+        }
+      },
+      "Tapahtumalista": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "examples": [
+              21
+            ]
+          },
+          "event": {
+            "type": "string",
+            "description": "Tapahtuman nimi",
+            "examples": [
+              "Ostarifestari"
+            ]
+          },
+          "tapahtumat": {
+            "type": "array",
+            "description": "Lista tapahtumista",
+            "items": {
+              "$ref": "#/components/schemas/Tapahtuma"
+            }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "examples": [
+              34
+            ]
+          },
+          "username": {
+            "type": "string",
+            "examples": [
+              "theUser"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "examples": [
+              "admin"
+            ]
+          },
+          "age": {
+            "type": "integer",
+            "format": "int16",
+            "examples": [
+              21
+            ]
+          },
+          "password": {
+            "type": "string",
+            "examples": [
+              "12345"
+            ]
+          }
+        },
+        "xml": {
+          "name": "user"
+        }
+      }
+    },
+    "securitySchemes": {
+      "petstore_auth": {
+        "type": "oauth2",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://petstore3.swagger.io/oauth/authorize",
+            "scopes": {
+              "write:tapahtuma": "muokkaa tapahtumia",
+              "read:tapahtuma": "lue tapahtumat"
+            }
+          }
+        }
+      },
+      "api_key": {
+        "type": "apiKey",
+        "name": "api_key",
+        "in": "header"
+      }
+    }
+  }
+}
